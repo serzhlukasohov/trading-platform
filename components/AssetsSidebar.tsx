@@ -9,7 +9,6 @@ interface AssetsSidebarProps {
   onSelectPair: (symbol: string) => void;
 }
 
-// Simple number formatter — no currency symbol
 const fmtPrice = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 5,
   minimumFractionDigits: 2,
@@ -61,10 +60,10 @@ export const AssetsSidebar = ({ pairs, selectedSymbol, onSelectPair }: AssetsSid
       </div>
 
       {/* Column headers */}
-      <div className="grid flex-none grid-cols-3 border-b border-[color:var(--terminal-border)] px-3 py-1.5 text-[10px] font-medium text-gray-500">
+      <div className="grid flex-none grid-cols-[1fr_auto_auto] gap-x-2 border-b border-[color:var(--terminal-border)] px-3 py-1.5 text-[10px] font-medium text-gray-500">
         <div>Asset</div>
-        <div className="text-right">Price</div>
-        <div className="text-right">Change</div>
+        <div className="w-14 text-right">Price</div>
+        <div className="w-12 text-right">Change</div>
       </div>
 
       {/* Pairs list */}
@@ -80,30 +79,30 @@ export const AssetsSidebar = ({ pairs, selectedSymbol, onSelectPair }: AssetsSid
               <button
                 key={pair.symbol}
                 onClick={() => onSelectPair(pair.symbol)}
-                className={`grid w-full grid-cols-3 items-center gap-1 px-3 py-1.5 text-left transition-colors ${
+                className={`grid w-full grid-cols-[1fr_auto_auto] items-center gap-x-2 px-3 py-1.5 text-left transition-colors ${
                   isSelected
                     ? 'border-l-2 border-purple-500 bg-purple-500/15'
                     : 'border-l-2 border-transparent hover:bg-[color:var(--terminal-border)]/30'
                 }`}
               >
-                {/* Asset: full symbol + /USDT below */}
+                {/* Asset: full symbol + base-to-USD subtext */}
                 <div className="min-w-0">
                   <div
                     className={`truncate text-xs font-semibold ${isSelected ? 'text-foreground' : 'text-gray-200'}`}
                   >
-                    {pair.baseAsset}
+                    {pair.symbol}
                   </div>
-                  <div className="text-[10px] text-gray-500">/USDT</div>
+                  <div className="truncate text-[10px] text-gray-500">{pair.baseAsset} to USD</div>
                 </div>
 
                 {/* Price */}
-                <div className="truncate text-right text-[11px] text-gray-300">
+                <div className="w-14 truncate text-right text-[11px] text-gray-300">
                   {fmtPrice.format(pair.currentPrice)}
                 </div>
 
                 {/* Change */}
                 <div
-                  className={`text-right text-[11px] font-medium ${isPositive ? 'text-green-400' : 'text-red-400'}`}
+                  className={`w-12 text-right text-[11px] font-medium ${isPositive ? 'text-green-400' : 'text-red-400'}`}
                 >
                   {isPositive ? '+' : ''}
                   {pair.priceChangePercent.toFixed(2)}%

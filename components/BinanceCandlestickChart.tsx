@@ -16,10 +16,10 @@ import {
   ISeriesApi,
 } from 'lightweight-charts';
 import { getBinanceKlines } from '@/lib/binance.actions';
-import { convertOHLCData, periodToBinanceConfig, formatCurrency } from '@/lib/utils';
+import { convertOHLCData, periodToBinanceConfig } from '@/lib/utils';
 import { useTheme } from './ThemeProvider';
 
-interface OHLCValues {
+export interface OHLCValues {
   open: number;
   high: number;
   low: number;
@@ -31,11 +31,12 @@ interface BinanceCandlestickChartProps {
   data?: OHLCData[];
   liveOhlcv?: OHLCData | null;
   height?: number;
-  fillHeight?: boolean; // fill parent flex container instead of fixed height
+  fillHeight?: boolean;
   children?: React.ReactNode;
   initialPeriod?: Period;
   liveInterval: BinanceInterval;
   setLiveInterval: (interval: BinanceInterval) => void;
+  onOhlcChange?: (ohlc: OHLCValues | null) => void;
 }
 
 const BinanceCandlestickChart = ({
@@ -48,6 +49,7 @@ const BinanceCandlestickChart = ({
   liveOhlcv = null,
   liveInterval,
   setLiveInterval,
+  onOhlcChange,
 }: BinanceCandlestickChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const dynamicHeight = height;
@@ -58,24 +60,13 @@ const BinanceCandlestickChart = ({
   const [period, setPeriod] = useState(initialPeriod);
   const [ohlcData, setOhlcData] = useState<OHLCData[]>(data ?? []);
   const [isPending, startTransition] = useTransition();
-  const [hoveredOhlc, setHoveredOhlc] = useState<OHLCValues | null>(null);
 
   const { theme } = useTheme();
-
-  // Derive latest OHLC for display (live candle or last historical)
-  const latestOhlc: OHLCValues | null = (() => {
-    if (hoveredOhlc) return hoveredOhlc;
-    const src = liveOhlcv ?? (ohlcData.length > 0 ? ohlcData[ohlcData.length - 1] : null);
-    if (!src) return null;
-    return { open: src[1], high: src[2], low: src[3], close: src[4] };
-  })();
 
   const fetchOHLCData = async (selectedPeriod: Period) => {
     try {
       const config = periodToBinanceConfig(selectedPeriod);
-
       const newData = await getBinanceKlines(symbol, config.interval, config.limit);
-
       startTransition(() => {
         setOhlcData(newData ?? []);
       });
@@ -86,7 +77,6 @@ const BinanceCandlestickChart = ({
 
   const handlePeriodChange = (newPeriod: Period) => {
     if (newPeriod === period) return;
-
     setPeriod(newPeriod);
     fetchOHLCData(newPeriod);
   };
@@ -100,7 +90,6 @@ const BinanceCandlestickChart = ({
 
     const showTime = ['daily', 'weekly', 'monthly'].includes(period);
 
-    // Read CSS variable at runtime so chart bg always matches the panel
     const panelBg =
       getComputedStyle(document.documentElement).getPropertyValue('--terminal-panel').trim() ||
       CHART_COLORS[theme].background;
@@ -116,30 +105,21 @@ const BinanceCandlestickChart = ({
     });
     const series = chart.addSeries(CandlestickSeries, getCandlestickConfig(theme));
 
-    // Binance data is already in seconds, no need to convert
     series.setData(convertOHLCData(ohlcData));
     chart.timeScale().fitContent();
 
-    // Subscribe to crosshair move for OHLC display
     chart.subscribeCrosshairMove((param) => {
       if (!param || !param.time || !param.seriesData) {
-        setHoveredOhlc(null);
+        onOhlcChange?.(null);
         return;
       }
-      const bar = param.seriesData.get(series) as
-        | { open: number; high: number; low: number; close: number }
-        | undefined;
-      if (bar) {
-        setHoveredOhlc({ open: bar.open, high: bar.high, low: bar.low, close: bar.close });
-      } else {
-        setHoveredOhlc(null);
-      }
+      const bar = param.seriesData.get(series) as OHLCValues | undefined;
+      onOhlcChange?.(bar ?? null);
     });
 
     chartRef.current = chart;
     candleSeriesRef.current = series;
 
-    // Only need manual resize observer when not using autoSize
     if (!fillHeight) {
       const observer = new ResizeObserver((entries) => {
         if (!entries.length) return;
@@ -170,8 +150,6 @@ const BinanceCandlestickChart = ({
     if (liveOhlcv) {
       const liveTimestamp = liveOhlcv[0];
       const lastHistoricalCandle = ohlcData[ohlcData.length - 1];
-
-      // Replace last candle if timestamps match, otherwise append
       if (lastHistoricalCandle && lastHistoricalCandle[0] === liveTimestamp) {
         merged = [...ohlcData.slice(0, -1), liveOhlcv];
       } else {
@@ -181,22 +159,18 @@ const BinanceCandlestickChart = ({
       merged = ohlcData;
     }
 
-    // Sort by timestamp to ensure chronological order
     merged.sort((a, b) => a[0] - b[0]);
-
     const converted = convertOHLCData(merged);
     candleSeriesRef.current.setData(converted);
 
     const dataChanged = prevOhlcDataLength.current !== ohlcData.length;
-
-    // Only fit content when data changes or in historical mode
     if (dataChanged) {
       chartRef.current?.timeScale().fitContent();
       prevOhlcDataLength.current = ohlcData.length;
     }
   }, [ohlcData, liveOhlcv]);
 
-  // Update chart colors on theme change without rebuilding
+  // Update chart colors on theme change
   useEffect(() => {
     if (!chartRef.current || !candleSeriesRef.current) return;
     const c = CHART_COLORS[theme];
@@ -221,8 +195,6 @@ const BinanceCandlestickChart = ({
     });
   }, [theme]);
 
-  const isCloseUp = latestOhlc ? latestOhlc.close >= latestOhlc.open : true;
-
   return (
     <div
       id="candlestick-chart"
@@ -240,41 +212,25 @@ const BinanceCandlestickChart = ({
           : undefined
       }
     >
-      <div className="chart-header">
-        <div className="flex flex-1 flex-wrap items-center gap-3">
-          {children}
-          {/* OHLC values */}
-          {latestOhlc && (
-            <div className="flex items-center gap-2 text-xs font-medium">
-              <span className="text-gray-500">O</span>
-              <span className="text-foreground">{formatCurrency(latestOhlc.open)}</span>
-              <span className="text-gray-500">H</span>
-              <span className="text-green-400">{formatCurrency(latestOhlc.high)}</span>
-              <span className="text-gray-500">L</span>
-              <span className="text-red-400">{formatCurrency(latestOhlc.low)}</span>
-              <span className="text-gray-500">C</span>
-              <span className={isCloseUp ? 'text-green-400' : 'text-red-400'}>
-                {formatCurrency(latestOhlc.close)}
-              </span>
-            </div>
-          )}
+      {/* Period selection row — only shown in standalone (non-fillHeight) mode */}
+      {!fillHeight && (
+        <div className="chart-header">
+          <div className="flex flex-1 flex-wrap items-center gap-3">{children}</div>
+          <div className="button-group">
+            <span className="mx-2 text-sm font-medium text-purple-100/50">Period:</span>
+            {PERIOD_BUTTONS.map(({ value, label }) => (
+              <button
+                key={value}
+                className={period === value ? 'config-button-active' : 'config-button'}
+                onClick={() => handlePeriodChange(value)}
+                disabled={isPending}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-
-        {/* Period Selection */}
-        <div className="button-group">
-          <span className="mx-2 text-sm font-medium text-purple-100/50">Period:</span>
-          {PERIOD_BUTTONS.map(({ value, label }) => (
-            <button
-              key={value}
-              className={period === value ? 'config-button-active' : 'config-button'}
-              onClick={() => handlePeriodChange(value)}
-              disabled={isPending}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
 
       <div
         ref={chartContainerRef}
@@ -282,9 +238,9 @@ const BinanceCandlestickChart = ({
         style={fillHeight ? { flex: 1, minHeight: 0, height: '100%' } : { height: chartHeight }}
       />
 
-      {/* Interval buttons below chart */}
+      {/* Interval + period bar below chart */}
       <div className="chart-interval-bar">
-        <div className="button-group">
+        <div className="button-group flex-1">
           {BINANCE_LIVE_INTERVALS.map(({ value, label }) => (
             <button
               key={value}
@@ -296,6 +252,22 @@ const BinanceCandlestickChart = ({
             </button>
           ))}
         </div>
+
+        {/* Period buttons — shown inline in fill-height (terminal) mode */}
+        {fillHeight && (
+          <div className="button-group border-l border-[color:var(--terminal-border)] pl-2">
+            {PERIOD_BUTTONS.map(({ value, label }) => (
+              <button
+                key={value}
+                className={period === value ? 'config-button-active' : 'config-button'}
+                onClick={() => handlePeriodChange(value)}
+                disabled={isPending}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

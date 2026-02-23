@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import Header from '@/components/Header';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -27,14 +28,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head suppressHydrationWarning>
-        <script
+      <head />
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `try{var t=localStorage.getItem('coinpulse-theme')||'dark';document.documentElement.className=t;}catch(e){document.documentElement.className='dark';}`,
           }}
         />
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
           <Header />
           {children}

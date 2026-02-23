@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -57,14 +58,14 @@ export const TradingForm = ({ symbol, currentPrice, onTrade }: TradingFormProps)
   };
 
   const inputCls =
-    'w-full rounded border border-[color:var(--terminal-border)] bg-[color:var(--terminal-deep)] px-2.5 py-1 text-sm text-foreground placeholder-gray-500 focus:border-purple-500 focus:outline-none';
+    'w-full rounded border border-[color:var(--terminal-border)] bg-[color:var(--terminal-deep)] px-2.5 py-1.5 text-sm text-foreground placeholder-gray-500 focus:border-purple-500 focus:outline-none';
 
   const selectCls =
-    'w-full rounded border border-[color:var(--terminal-border)] bg-[color:var(--terminal-deep)] px-2.5 py-1 text-sm text-foreground focus:border-purple-500 focus:outline-none cursor-pointer';
+    'w-full appearance-none rounded border border-[color:var(--terminal-border)] bg-[color:var(--terminal-deep)] px-2.5 py-1.5 text-sm text-foreground focus:border-purple-500 focus:outline-none cursor-pointer';
 
   return (
-    <div className="flex flex-col gap-1.5 bg-[color:var(--terminal-panel)] px-3 py-2">
-      {/* Market / Limit tabs — underline style */}
+    <div className="flex flex-col gap-2.5 bg-[color:var(--terminal-panel)] px-3 py-2.5">
+      {/* Market / Limit tabs */}
       <div className="flex border-b border-[color:var(--terminal-border)]">
         {(['market', 'limit'] as OrderType[]).map((t) => (
           <button
@@ -81,46 +82,56 @@ export const TradingForm = ({ symbol, currentPrice, onTrade }: TradingFormProps)
         ))}
       </div>
 
-      {/* Account + Available balance — single row */}
-      <div className="flex items-center justify-between">
-        <select className="cursor-pointer rounded border border-[color:var(--terminal-border)] bg-[color:var(--terminal-deep)] px-2 py-0.5 text-xs text-gray-400 focus:outline-none">
+      {/* DEMO account selector — full width */}
+      <div className="relative">
+        <select className={selectCls}>
           <option>DEMO</option>
+          <option>Live</option>
         </select>
-        <span className="text-xs text-gray-400">
-          Avail:{' '}
-          <span className="text-foreground font-medium">{formatCurrency(availableBalance)}</span>
-        </span>
+        <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+      </div>
+
+      {/* Available balance */}
+      <div className="text-sm text-gray-400">
+        Available:{' '}
+        <span className="text-foreground font-semibold">{formatCurrency(availableBalance)}</span>
       </div>
 
       {/* Position Mode + Leverage side by side */}
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="mb-0.5 block text-[10px] text-gray-500">Position Mode</label>
-          <select className={selectCls}>
-            <option>USD</option>
-            <option>Coin</option>
-          </select>
+          <label className="mb-1 block text-xs text-gray-500">Position Mode</label>
+          <div className="relative">
+            <select className={selectCls}>
+              <option>USD</option>
+              <option>Coin</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+          </div>
         </div>
         <div>
-          <label className="mb-0.5 block text-[10px] text-gray-500">Leverage</label>
-          <select
-            value={leverage}
-            onChange={(e) => setLeverage(parseInt(e.target.value))}
-            className={selectCls}
-          >
-            {[1, 2, 5, 10, 20, 50, 100].map((lev) => (
-              <option key={lev} value={lev}>
-                {lev}:1
-              </option>
-            ))}
-          </select>
+          <label className="mb-1 block text-xs text-gray-500">Leverage</label>
+          <div className="relative">
+            <select
+              value={leverage}
+              onChange={(e) => setLeverage(parseInt(e.target.value))}
+              className={selectCls}
+            >
+              {[1, 2, 5, 10, 20, 50, 100].map((lev) => (
+                <option key={lev} value={lev}>
+                  {lev}:1
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+          </div>
         </div>
       </div>
 
-      {/* Size input + TP/SL checkbox on same row */}
+      {/* Size + TP/SL toggle */}
       <div>
-        <div className="mb-0.5 flex items-center justify-between">
-          <label className="text-[10px] text-gray-500">Size ({symbol.replace('USDT', '')})</label>
+        <div className="mb-1 flex items-center justify-between">
+          <label className="text-xs text-gray-500">Size</label>
           <button
             onClick={() => setShowTPSL(!showTPSL)}
             className="hover:text-foreground flex items-center gap-1.5 text-xs text-gray-400"
@@ -164,7 +175,7 @@ export const TradingForm = ({ symbol, currentPrice, onTrade }: TradingFormProps)
       {showTPSL && (
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="mb-0.5 block text-[10px] text-gray-500">Take Profit</label>
+            <label className="mb-1 block text-xs text-gray-500">Take Profit</label>
             <input
               type="number"
               value={takeProfit}
@@ -174,7 +185,7 @@ export const TradingForm = ({ symbol, currentPrice, onTrade }: TradingFormProps)
             />
           </div>
           <div>
-            <label className="mb-0.5 block text-[10px] text-gray-500">Stop Loss</label>
+            <label className="mb-1 block text-xs text-gray-500">Stop Loss</label>
             <input
               type="number"
               value={stopLoss}
@@ -213,13 +224,13 @@ export const TradingForm = ({ symbol, currentPrice, onTrade }: TradingFormProps)
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={() => handleTrade('buy')}
-          className="rounded bg-green-500 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-400 active:scale-95"
+          className="rounded bg-green-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-400 active:scale-95"
         >
           Buy
         </button>
         <button
           onClick={() => handleTrade('sell')}
-          className="rounded bg-red-500 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-400 active:scale-95"
+          className="rounded bg-red-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-400 active:scale-95"
         >
           Sell
         </button>
