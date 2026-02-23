@@ -70,7 +70,7 @@ export const OrderBook = ({ symbol, orderBook, currentPrice }: OrderBookProps) =
       </div>
 
       {/* Scrollable content — min-h-0 is critical to prevent flex overflow */}
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar">
         {/* Asks (sell) — reversed so highest is on top */}
         <div className="flex flex-col-reverse">
           {data?.asks.map((ask, index) => {

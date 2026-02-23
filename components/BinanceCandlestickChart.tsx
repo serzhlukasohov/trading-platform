@@ -49,9 +49,8 @@ const BinanceCandlestickChart = ({
   liveInterval,
   setLiveInterval,
 }: BinanceCandlestickChartProps) => {
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
-  const [dynamicHeight, setDynamicHeight] = useState(height);
+  const dynamicHeight = height;
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
   const prevOhlcDataLength = useRef<number>(data?.length || 0);
@@ -92,19 +91,6 @@ const BinanceCandlestickChart = ({
     fetchOHLCData(newPeriod);
   };
 
-  // Measure wrapper height when fillHeight is true
-  useEffect(() => {
-    if (!fillHeight) return;
-    const wrapper = wrapperRef.current;
-    if (!wrapper) return;
-    const ro = new ResizeObserver((entries) => {
-      const h = entries[0]?.contentRect.height;
-      if (h && h > 0) setDynamicHeight(h);
-    });
-    ro.observe(wrapper);
-    return () => ro.disconnect();
-  }, [fillHeight]);
-
   const chartHeight = fillHeight ? dynamicHeight : height;
 
   // Initialize chart
@@ -114,9 +100,19 @@ const BinanceCandlestickChart = ({
 
     const showTime = ['daily', 'weekly', 'monthly'].includes(period);
 
+    // Read CSS variable at runtime so chart bg always matches the panel
+    const panelBg = getComputedStyle(document.documentElement)
+      .getPropertyValue('--terminal-panel')
+      .trim() || CHART_COLORS[theme].background;
+
+    const baseConfig = getChartConfig(chartHeight, showTime, theme);
     const chart = createChart(container, {
-      ...getChartConfig(chartHeight, showTime, theme),
-      width: container.clientWidth,
+      ...baseConfig,
+      ...(fillHeight ? { autoSize: true } : { width: container.clientWidth }),
+      layout: {
+        ...baseConfig.layout,
+        background: { type: ColorType.Solid, color: panelBg },
+      },
     });
     const series = chart.addSeries(CandlestickSeries, getCandlestickConfig(theme));
 
@@ -143,14 +139,22 @@ const BinanceCandlestickChart = ({
     chartRef.current = chart;
     candleSeriesRef.current = series;
 
-    const observer = new ResizeObserver((entries) => {
-      if (!entries.length) return;
-      chart.applyOptions({ width: entries[0].contentRect.width });
-    });
-    observer.observe(container);
+    // Only need manual resize observer when not using autoSize
+    if (!fillHeight) {
+      const observer = new ResizeObserver((entries) => {
+        if (!entries.length) return;
+        chart.applyOptions({ width: entries[0].contentRect.width });
+      });
+      observer.observe(container);
+      return () => {
+        observer.disconnect();
+        chart.remove();
+        chartRef.current = null;
+        candleSeriesRef.current = null;
+      };
+    }
 
     return () => {
-      observer.disconnect();
       chart.remove();
       chartRef.current = null;
       candleSeriesRef.current = null;
@@ -196,8 +200,11 @@ const BinanceCandlestickChart = ({
   useEffect(() => {
     if (!chartRef.current || !candleSeriesRef.current) return;
     const c = CHART_COLORS[theme];
+    const panelBg = getComputedStyle(document.documentElement)
+      .getPropertyValue('--terminal-panel')
+      .trim() || c.background;
     chartRef.current.applyOptions({
-      layout: { background: { type: ColorType.Solid, color: c.background }, textColor: c.text },
+      layout: { background: { type: ColorType.Solid, color: panelBg }, textColor: c.text },
       grid: { horzLines: { color: c.grid } },
       rightPriceScale: { borderColor: c.border },
       timeScale: { borderColor: c.border },
@@ -219,7 +226,6 @@ const BinanceCandlestickChart = ({
   return (
     <div
       id="candlestick-chart"
-      ref={fillHeight ? wrapperRef : undefined}
       style={fillHeight ? { display: 'flex', flexDirection: 'column', height: '100%', padding: 0, marginTop: 0, borderRadius: 0, background: 'transparent' } : undefined}
     >
       <div className="chart-header">
@@ -261,7 +267,7 @@ const BinanceCandlestickChart = ({
       <div
         ref={chartContainerRef}
         className="chart"
-        style={fillHeight ? { flex: 1, minHeight: 0, height: undefined } : { height: chartHeight }}
+        style={fillHeight ? { flex: 1, minHeight: 0, height: '100%' } : { height: chartHeight }}
       />
 
       {/* Interval buttons below chart */}

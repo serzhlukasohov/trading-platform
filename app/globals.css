@@ -189,7 +189,7 @@
   /* Terminal variables */
   --terminal-border: #e2e8f0;
   --terminal-panel: #f8fafc;
-  --terminal-deep: #f1f5f9;
+  --terminal-deep: #e5e7eb;
 }
 
 .dark {
@@ -306,11 +306,11 @@
 
   /* Chart tab bar (compact PairHeader) */
   .chart-tab-bar {
-    @apply flex items-center gap-2 px-4 py-2 border-b border-[color:var(--terminal-border)] bg-[color:var(--terminal-deep)] text-sm;
+    @apply flex items-center gap-2 px-4 py-2 border-b border-[color:var(--terminal-border)] bg-[color:var(--terminal-panel)] text-sm;
   }
 
   .chart-tab {
-    @apply flex items-center gap-1.5 px-3 py-1 rounded-sm bg-[color:var(--terminal-panel)] text-foreground text-xs;
+    @apply flex items-center gap-1.5 px-3 py-1 rounded-sm bg-[color:var(--terminal-deep)] text-foreground text-xs;
   }
 
   /* Percentage Slider */
@@ -1080,9 +1080,14 @@
 }
 
 /* Custom Scrollbar Styles */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.25) transparent;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 4px;
+  height: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -1090,22 +1095,24 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--dark-400);
-  border-radius: 8px;
+  background: rgba(139, 92, 246, 0.25);
+  border-radius: 99px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--dark-400);
+  background: rgba(139, 92, 246, 0.55);
 }
 
 /* Table Custom Scrollbar */
 .custom-scrollbar [data-slot='table-container'] {
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.25) transparent;
 }
 
 .custom-scrollbar [data-slot='table-container']::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 4px;
+  height: 4px;
 }
 
 .custom-scrollbar [data-slot='table-container']::-webkit-scrollbar-track {
@@ -1113,10 +1120,10 @@
 }
 
 .custom-scrollbar [data-slot='table-container']::-webkit-scrollbar-thumb {
-  background: var(--dark-400);
-  border-radius: 8px;
+  background: rgba(139, 92, 246, 0.25);
+  border-radius: 99px;
 }
 
 .custom-scrollbar [data-slot='table-container']::-webkit-scrollbar-thumb:hover {
-  background: var(--dark-400);
+  background: rgba(139, 92, 246, 0.55);
 }

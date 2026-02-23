@@ -26,16 +26,16 @@ export const TradingTerminal = ({
 }: TradingTerminalProps) => {
   const router = useRouter();
 
-  const [positions, setPositions] = useState<Position[]>(() => {
-    if (typeof window === 'undefined') return [];
+  const [positions, setPositions] = useState<Position[]>([]);
+
+  // Load positions from localStorage after hydration to avoid SSR mismatch
+  useEffect(() => {
     const saved = localStorage.getItem('coinpulse_positions');
-    return saved ? JSON.parse(saved) : generateMockPositions();
-  });
+    setPositions(saved ? JSON.parse(saved) : generateMockPositions());
+  }, []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('coinpulse_positions', JSON.stringify(positions));
-    }
+    localStorage.setItem('coinpulse_positions', JSON.stringify(positions));
   }, [positions]);
 
   const [liveInterval, setLiveInterval] = useState<BinanceInterval>('1m');
@@ -106,15 +106,15 @@ export const TradingTerminal = ({
     // row 1: sidebar | chart          | orderbook
     // row 2: sidebar | trading form   | orderbook
     // row 3: positions (full width, all 3 cols)
-    <div className="grid h-[calc(100vh-80px)] grid-cols-[180px_1fr_280px] grid-rows-[1fr_260px_210px] overflow-hidden">
+    <div className="grid h-[calc(100vh-80px)] grid-cols-[180px_1fr_280px] grid-rows-[1fr_auto_210px] gap-2 p-2 overflow-hidden bg-[color:var(--terminal-deep)]">
 
       {/* Col 1: Assets Sidebar — spans rows 1+2 */}
-      <div className="row-span-2 border-r border-[color:var(--terminal-border)] overflow-hidden">
+      <div className="row-span-2 overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
         <AssetsSidebar pairs={allPairs} selectedSymbol={symbol} onSelectPair={handleSelectPair} />
       </div>
 
       {/* Col 2 row 1: Chart */}
-      <div className="col-start-2 row-start-1 flex min-h-0 flex-col overflow-hidden border-r border-[color:var(--terminal-border)]">
+      <div className="col-start-2 row-start-1 flex min-h-0 flex-col overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
         <PairHeader tradingPair={currentTicker} isLive={isConnected} liveInterval={liveInterval} />
         <div className="min-h-0 flex-1 overflow-hidden">
           <BinanceCandlestickChart
@@ -128,8 +128,8 @@ export const TradingTerminal = ({
         </div>
       </div>
 
-      {/* Col 2 row 2: Trading Form — fixed height, no scroll */}
-      <div className="col-start-2 row-start-2 overflow-hidden border-r border-t border-[color:var(--terminal-border)]">
+      {/* Col 2 row 2: Trading Form — auto height fits content */}
+      <div className="col-start-2 row-start-2 overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
         <TradingForm
           symbol={symbol}
           currentPrice={currentTicker.currentPrice}
@@ -138,7 +138,7 @@ export const TradingTerminal = ({
       </div>
 
       {/* Col 3: Order Book — spans rows 1+2 */}
-      <div className="col-start-3 row-span-2 row-start-1 min-h-0 overflow-hidden">
+      <div className="col-start-3 row-span-2 row-start-1 min-h-0 overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
         <OrderBook
           symbol={symbol}
           orderBook={orderBook}
@@ -147,7 +147,7 @@ export const TradingTerminal = ({
       </div>
 
       {/* Row 3: Positions Table — full width, all 3 cols */}
-      <div className="col-span-3 col-start-1 row-start-3 overflow-hidden border-t border-[color:var(--terminal-border)]">
+      <div className="col-span-3 col-start-1 row-start-3 overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
         <PositionsTable
           positions={positions}
           currentPrices={currentPrices}

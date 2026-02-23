@@ -18,7 +18,7 @@ export const navItems = [
 
 export const CHART_COLORS = {
   dark: {
-    background: '#0b1116',
+    background: '#1a1f26',
     text: '#8f9fb1',
     grid: '#1a2332',
     border: '#1a2332',

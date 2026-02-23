@@ -65,7 +65,7 @@ export const AssetsSidebar = ({ pairs, selectedSymbol, onSelectPair }: AssetsSid
       </div>
 
       {/* Pairs list */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
         {filteredPairs.length === 0 ? (
           <div className="py-8 text-center text-xs text-gray-500">No pairs found</div>
         ) : (
