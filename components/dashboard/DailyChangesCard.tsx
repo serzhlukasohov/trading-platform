@@ -11,11 +11,14 @@ const PairRow = ({ pair }: { pair: TradingPair }) => {
   return (
     <Link
       href={`/pairs/${pair.symbol}`}
-      className="grid grid-cols-3 px-0 py-2 text-sm hover:bg-[color:var(--terminal-border)]/30 rounded transition-colors"
+      className="grid grid-cols-3 rounded px-0 py-2 text-sm transition-colors hover:bg-[color:var(--terminal-border)]/30"
     >
-      <span className="font-medium text-foreground">{pair.baseAsset}</span>
-      <span className={`text-center font-semibold ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-        {isPositive ? '+' : ''}{pair.priceChangePercent.toFixed(2)}%
+      <span className="text-foreground font-medium">{pair.baseAsset}</span>
+      <span
+        className={`text-center font-semibold ${isPositive ? 'text-green-400' : 'text-red-400'}`}
+      >
+        {isPositive ? '+' : ''}
+        {pair.priceChangePercent.toFixed(2)}%
       </span>
       <span className="text-right text-purple-100">{formatCurrency(pair.currentPrice)}</span>
     </Link>
@@ -25,10 +28,10 @@ const PairRow = ({ pair }: { pair: TradingPair }) => {
 export const DailyChangesCard = ({ gainers, losers }: DailyChangesCardProps) => {
   return (
     <div className="dashboard-card">
-      <h3 className="text-base font-semibold text-foreground mb-5">Daily Changes</h3>
+      <h3 className="text-foreground mb-5 text-base font-semibold">Daily Changes</h3>
 
       {/* Column headers */}
-      <div className="grid grid-cols-3 mb-1 text-xs text-purple-100">
+      <div className="mb-1 grid grid-cols-3 text-xs text-purple-100">
         <span>Top Gainers</span>
         <span className="text-center">Change</span>
         <span className="text-right">Price</span>
@@ -41,7 +44,7 @@ export const DailyChangesCard = ({ gainers, losers }: DailyChangesCardProps) => 
       </div>
 
       {/* Column headers */}
-      <div className="grid grid-cols-3 mb-1 text-xs text-purple-100 border-t border-[color:var(--terminal-border)] pt-4">
+      <div className="mb-1 grid grid-cols-3 border-t border-[color:var(--terminal-border)] pt-4 text-xs text-purple-100">
         <span>Top Losers</span>
         <span className="text-center">Change</span>
         <span className="text-right">Price</span>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/error-boundaries */
 import { get24hrTicker } from '@/lib/binance.actions';
 import Link from 'next/link';
 import { cn, formatCurrency, formatPercentage, convertBinanceTicker } from '@/lib/utils';

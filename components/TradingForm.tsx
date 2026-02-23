@@ -72,8 +72,8 @@ export const TradingForm = ({ symbol, currentPrice, onTrade }: TradingFormProps)
             onClick={() => setOrderType(t)}
             className={`px-3 pb-1.5 text-sm font-medium capitalize transition-colors ${
               orderType === t
-                ? 'border-b-2 border-purple-500 text-foreground'
-                : 'text-gray-400 hover:text-foreground'
+                ? 'text-foreground border-b-2 border-purple-500'
+                : 'hover:text-foreground text-gray-400'
             }`}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -83,11 +83,12 @@ export const TradingForm = ({ symbol, currentPrice, onTrade }: TradingFormProps)
 
       {/* Account + Available balance — single row */}
       <div className="flex items-center justify-between">
-        <select className="rounded border border-[color:var(--terminal-border)] bg-[color:var(--terminal-deep)] px-2 py-0.5 text-xs text-gray-400 focus:outline-none cursor-pointer">
+        <select className="cursor-pointer rounded border border-[color:var(--terminal-border)] bg-[color:var(--terminal-deep)] px-2 py-0.5 text-xs text-gray-400 focus:outline-none">
           <option>DEMO</option>
         </select>
         <span className="text-xs text-gray-400">
-          Avail: <span className="font-medium text-foreground">{formatCurrency(availableBalance)}</span>
+          Avail:{' '}
+          <span className="text-foreground font-medium">{formatCurrency(availableBalance)}</span>
         </span>
       </div>
 
@@ -122,7 +123,7 @@ export const TradingForm = ({ symbol, currentPrice, onTrade }: TradingFormProps)
           <label className="text-[10px] text-gray-500">Size ({symbol.replace('USDT', '')})</label>
           <button
             onClick={() => setShowTPSL(!showTPSL)}
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-foreground"
+            className="hover:text-foreground flex items-center gap-1.5 text-xs text-gray-400"
           >
             <span
               className={`inline-flex h-3.5 w-3.5 items-center justify-center rounded-sm border transition-colors ${
@@ -132,8 +133,18 @@ export const TradingForm = ({ symbol, currentPrice, onTrade }: TradingFormProps)
               }`}
             >
               {showTPSL && (
-                <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                <svg
+                  className="h-2.5 w-2.5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={3}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               )}
             </span>
@@ -188,7 +199,10 @@ export const TradingForm = ({ symbol, currentPrice, onTrade }: TradingFormProps)
         />
         <div className="pct-slider-labels">
           {[0, 25, 50, 75, 100].map((pct) => (
-            <span key={pct} className={`text-[10px] ${sizePercent === pct ? 'text-purple-400 font-semibold' : 'text-gray-500'}`}>
+            <span
+              key={pct}
+              className={`text-[10px] ${sizePercent === pct ? 'font-semibold text-purple-400' : 'text-gray-500'}`}
+            >
               {pct}%
             </span>
           ))}
@@ -199,13 +213,13 @@ export const TradingForm = ({ symbol, currentPrice, onTrade }: TradingFormProps)
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={() => handleTrade('buy')}
-          className="rounded py-2 text-sm font-semibold text-white bg-green-500 hover:bg-green-400 transition-colors active:scale-95"
+          className="rounded bg-green-500 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-400 active:scale-95"
         >
           Buy
         </button>
         <button
           onClick={() => handleTrade('sell')}
-          className="rounded py-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-400 transition-colors active:scale-95"
+          className="rounded bg-red-500 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-400 active:scale-95"
         >
           Sell
         </button>

@@ -20,6 +20,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const saved = localStorage.getItem('coinpulse-theme') as Theme | null;
     const initial = saved || 'dark';
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTheme(initial);
     document.documentElement.className = initial;
   }, []);

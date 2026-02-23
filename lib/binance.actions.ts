@@ -99,7 +99,7 @@ export async function getBinanceKlines(
   if (startTime) params.startTime = startTime;
   if (endTime) params.endTime = endTime;
 
-  const klines = await binanceFetcher<any[][]>('klines', params, 30); // Cache for 30 seconds
+  const klines = await binanceFetcher<(string | number)[][]>('klines', params, 30); // Cache for 30 seconds
 
   // Convert Binance format to internal OHLCData format
   return klines.map((kline) => [
@@ -121,7 +121,7 @@ export async function getBinanceAvgPrice(symbol: string): Promise<{ mins: number
 /**
  * Ping Binance server to check connectivity
  */
-export async function pingBinance(): Promise<{}> {
+export async function pingBinance(): Promise<Record<string, never>> {
   return binanceFetcher('ping', undefined, 60);
 }
 

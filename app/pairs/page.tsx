@@ -137,11 +137,11 @@ const PairsListPage = async ({ searchParams }: NextPageProps) => {
               name="search"
               placeholder="Search pairs (e.g., BTC, ETH)..."
               defaultValue={searchTerm}
-              className="w-full rounded-lg border border-gray-700 bg-[#1a2332] px-4 py-2 text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+              className="w-full rounded-lg border border-gray-700 bg-[#1a2332] px-4 py-2 text-white placeholder-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none"
             />
             <button
               type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-purple-600 px-4 py-1 text-sm text-white hover:bg-purple-700"
+              className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md bg-purple-600 px-4 py-1 text-sm text-white hover:bg-purple-700"
             >
               Search
             </button>

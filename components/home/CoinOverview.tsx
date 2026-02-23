@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/error-boundaries */
 import React from 'react';
 import { get24hrTicker, getBinanceKlines } from '@/lib/binance.actions';
 import { formatCurrency, convertBinanceTicker } from '@/lib/utils';

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/error-boundaries */
 import { get24hrTicker } from '@/lib/binance.actions';
 import DataTable from '@/components/DataTable';
 import { cn, formatCurrency, formatPercentage, convertBinanceTicker } from '@/lib/utils';

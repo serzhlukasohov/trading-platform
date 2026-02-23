@@ -39,9 +39,6 @@ export const CHART_COLORS = {
   },
 } as const;
 
-// Legacy: kept for backwards compat (defaults to dark)
-const CHART_COLORS_LEGACY = CHART_COLORS.dark;
-
 export const getCandlestickConfig = (
   theme: 'dark' | 'light' = 'dark',
 ): CandlestickSeriesPartialOptions => {

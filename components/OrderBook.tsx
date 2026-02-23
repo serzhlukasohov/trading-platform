@@ -29,7 +29,7 @@ export const OrderBook = ({ symbol, orderBook, currentPrice }: OrderBookProps) =
   const [mockData, setMockData] = useState<OrderBook | null>(null);
   useEffect(() => {
     if (!orderBook) setMockData(generateMockOrderBook(currentPrice));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const data = orderBook || mockData;
 
@@ -48,11 +48,11 @@ export const OrderBook = ({ symbol, orderBook, currentPrice }: OrderBookProps) =
       {/* Header */}
       <div className="flex-none border-b border-[color:var(--terminal-border)] px-4 py-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Order Book</h3>
+          <h3 className="text-foreground text-sm font-semibold">Order Book</h3>
           <div className="text-xs text-gray-400">
             {orderBook ? (
               <span className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-green-500 inline-block" />
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
                 Live • {symbol}
               </span>
             ) : (
@@ -63,14 +63,14 @@ export const OrderBook = ({ symbol, orderBook, currentPrice }: OrderBookProps) =
       </div>
 
       {/* Column Headers */}
-      <div className="flex-none grid grid-cols-3 gap-2 border-b border-[color:var(--terminal-border)] px-4 py-2 text-xs font-medium text-gray-400">
+      <div className="grid flex-none grid-cols-3 gap-2 border-b border-[color:var(--terminal-border)] px-4 py-2 text-xs font-medium text-gray-400">
         <div className="text-left">Price</div>
         <div className="text-right">Size</div>
         <div className="text-right">Sum</div>
       </div>
 
       {/* Scrollable content — min-h-0 is critical to prevent flex overflow */}
-      <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar">
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
         {/* Asks (sell) — reversed so highest is on top */}
         <div className="flex flex-col-reverse">
           {data?.asks.map((ask, index) => {
@@ -81,7 +81,7 @@ export const OrderBook = ({ symbol, orderBook, currentPrice }: OrderBookProps) =
                 className="relative grid grid-cols-3 gap-2 px-4 py-0.5 text-xs hover:bg-[color:var(--terminal-border)]/30"
               >
                 <div
-                  className="absolute right-0 top-0 h-full bg-red-500/10"
+                  className="absolute top-0 right-0 h-full bg-red-500/10"
                   style={{ width: `${barWidth}%` }}
                 />
                 <div className="relative z-10 text-left font-medium text-red-400">
@@ -118,7 +118,7 @@ export const OrderBook = ({ symbol, orderBook, currentPrice }: OrderBookProps) =
                 className="relative grid grid-cols-3 gap-2 px-4 py-0.5 text-xs hover:bg-[color:var(--terminal-border)]/30"
               >
                 <div
-                  className="absolute right-0 top-0 h-full bg-green-500/10"
+                  className="absolute top-0 right-0 h-full bg-green-500/10"
                   style={{ width: `${barWidth}%` }}
                 />
                 <div className="relative z-10 text-left font-medium text-green-400">

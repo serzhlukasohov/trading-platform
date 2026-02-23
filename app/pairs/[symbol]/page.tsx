@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/error-boundaries */
 import { get24hrTicker, getBinanceKlines } from '@/lib/binance.actions';
 import { periodToBinanceConfig, convertBinanceTicker } from '@/lib/utils';
 import { TradingTerminal } from '@/components/TradingTerminal';

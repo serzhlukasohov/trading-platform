@@ -98,7 +98,7 @@ const LiveDataWrapper = ({ children, coinId, poolId, coin, coinOHLCData }: LiveD
       )}
 
       {!hasWebSocketConfig && (
-        <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+        <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4">
           <p className="text-sm text-yellow-200">
             <strong>Note:</strong> WebSocket credentials not configured. Live trading data and
             real-time OHLCV updates are disabled. Historical chart data is still available.

@@ -31,6 +31,7 @@ export const TradingTerminal = ({
   // Load positions from localStorage after hydration to avoid SSR mismatch
   useEffect(() => {
     const saved = localStorage.getItem('coinpulse_positions');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPositions(saved ? JSON.parse(saved) : generateMockPositions());
   }, []);
 
@@ -106,8 +107,7 @@ export const TradingTerminal = ({
     // row 1: sidebar | chart          | orderbook
     // row 2: sidebar | trading form   | orderbook
     // row 3: positions (full width, all 3 cols)
-    <div className="grid h-[calc(100vh-80px)] grid-cols-[180px_1fr_280px] grid-rows-[1fr_auto_210px] gap-2 p-2 overflow-hidden bg-[color:var(--terminal-deep)]">
-
+    <div className="grid h-[calc(100vh-80px)] grid-cols-[180px_1fr_280px] grid-rows-[1fr_auto_210px] gap-2 overflow-hidden bg-[color:var(--terminal-deep)] p-2">
       {/* Col 1: Assets Sidebar — spans rows 1+2 */}
       <div className="row-span-2 overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
         <AssetsSidebar pairs={allPairs} selectedSymbol={symbol} onSelectPair={handleSelectPair} />

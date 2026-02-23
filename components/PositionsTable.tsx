@@ -36,8 +36,8 @@ export const PositionsTable = ({ positions, currentPrices, onClose }: PositionsT
               onClick={() => setActiveTab(tab)}
               className={`pb-1 text-sm font-medium capitalize transition-colors ${
                 activeTab === tab
-                  ? 'border-b-2 border-purple-500 text-foreground'
-                  : 'text-gray-400 hover:text-foreground'
+                  ? 'text-foreground border-b-2 border-purple-500'
+                  : 'hover:text-foreground text-gray-400'
               }`}
             >
               {tab}
@@ -50,7 +50,7 @@ export const PositionsTable = ({ positions, currentPrices, onClose }: PositionsT
       </div>
 
       {/* Table */}
-      <div className="min-h-0 flex-1 overflow-auto custom-scrollbar">
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-auto">
         {filteredPositions.length === 0 ? (
           <div className="py-12 text-center text-sm text-gray-400">No {activeTab} positions</div>
         ) : (

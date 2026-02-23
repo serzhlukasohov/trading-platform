@@ -101,9 +101,9 @@ const BinanceCandlestickChart = ({
     const showTime = ['daily', 'weekly', 'monthly'].includes(period);
 
     // Read CSS variable at runtime so chart bg always matches the panel
-    const panelBg = getComputedStyle(document.documentElement)
-      .getPropertyValue('--terminal-panel')
-      .trim() || CHART_COLORS[theme].background;
+    const panelBg =
+      getComputedStyle(document.documentElement).getPropertyValue('--terminal-panel').trim() ||
+      CHART_COLORS[theme].background;
 
     const baseConfig = getChartConfig(chartHeight, showTime, theme);
     const chart = createChart(container, {
@@ -200,9 +200,9 @@ const BinanceCandlestickChart = ({
   useEffect(() => {
     if (!chartRef.current || !candleSeriesRef.current) return;
     const c = CHART_COLORS[theme];
-    const panelBg = getComputedStyle(document.documentElement)
-      .getPropertyValue('--terminal-panel')
-      .trim() || c.background;
+    const panelBg =
+      getComputedStyle(document.documentElement).getPropertyValue('--terminal-panel').trim() ||
+      c.background;
     chartRef.current.applyOptions({
       layout: { background: { type: ColorType.Solid, color: panelBg }, textColor: c.text },
       grid: { horzLines: { color: c.grid } },
@@ -226,10 +226,22 @@ const BinanceCandlestickChart = ({
   return (
     <div
       id="candlestick-chart"
-      style={fillHeight ? { display: 'flex', flexDirection: 'column', height: '100%', padding: 0, marginTop: 0, borderRadius: 0, background: 'transparent' } : undefined}
+      style={
+        fillHeight
+          ? {
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              padding: 0,
+              marginTop: 0,
+              borderRadius: 0,
+              background: 'transparent',
+            }
+          : undefined
+      }
     >
       <div className="chart-header">
-        <div className="flex-1 flex items-center gap-3 flex-wrap">
+        <div className="flex flex-1 flex-wrap items-center gap-3">
           {children}
           {/* OHLC values */}
           {latestOhlc && (

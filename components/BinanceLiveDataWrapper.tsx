@@ -22,6 +22,7 @@ const BinanceLiveDataWrapper = ({
 
   // Only connect WebSocket on client side
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsClient(true);
   }, []);
 

@@ -43,26 +43,29 @@ export const NewsCard = () => {
 
   return (
     <div className="dashboard-card flex flex-col">
-      <h3 className="text-base font-semibold text-foreground mb-5">News</h3>
+      <h3 className="text-foreground mb-5 text-base font-semibold">News</h3>
 
       <div className="flex flex-1 items-center gap-2">
-        <button onClick={prev} className="flex-shrink-0 p-1 rounded text-purple-100 hover:text-foreground transition-colors">
+        <button
+          onClick={prev}
+          className="hover:text-foreground flex-shrink-0 rounded p-1 text-purple-100 transition-colors"
+        >
           <ChevronLeft className="h-5 w-5" />
         </button>
 
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {/* Image placeholder */}
-          <div className={`w-full h-44 rounded-lg bg-gradient-to-br ${article.gradient} flex items-center justify-center text-5xl mb-3`}>
+          <div
+            className={`h-44 w-full rounded-lg bg-gradient-to-br ${article.gradient} mb-3 flex items-center justify-center text-5xl`}
+          >
             {article.emoji}
           </div>
 
-          <p className="text-sm font-medium text-purple-400 leading-snug mb-1">
-            {article.title}
-          </p>
+          <p className="mb-1 text-sm leading-snug font-medium text-purple-400">{article.title}</p>
           <p className="text-xs text-purple-100">{article.date}</p>
 
           {/* Dots */}
-          <div className="flex gap-1.5 mt-3">
+          <div className="mt-3 flex gap-1.5">
             {MOCK_NEWS.map((_, i) => (
               <button
                 key={i}
@@ -73,7 +76,10 @@ export const NewsCard = () => {
           </div>
         </div>
 
-        <button onClick={next} className="flex-shrink-0 p-1 rounded text-purple-100 hover:text-foreground transition-colors">
+        <button
+          onClick={next}
+          className="hover:text-foreground flex-shrink-0 rounded p-1 text-purple-100 transition-colors"
+        >
           <ChevronRight className="h-5 w-5" />
         </button>
       </div>
