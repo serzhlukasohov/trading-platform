@@ -23,7 +23,7 @@ const Page = async () => {
     .sort((a, b) => b.quoteVolume24h - a.quoteVolume24h);
 
   return (
-    <main className="min-h-screen bg-[color:var(--terminal-deep)]">
+    <main className="bg-[color:var(--terminal-deep)]">
       <TradingTerminal
         symbol={SYMBOL}
         initialTicker={ticker}

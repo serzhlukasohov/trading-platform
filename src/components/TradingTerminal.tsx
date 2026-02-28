@@ -34,8 +34,6 @@ export const TradingTerminal = ({
   const [activeTab, setActiveTab] = useState<MobileTab>('trade');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [hoveredOhlc, setHoveredOhlc] = useState<OHLCValues | null>(null);
-
-  // Load positions from localStorage after hydration to avoid SSR mismatch
   useEffect(() => {
     const saved = localStorage.getItem('coinpulse_positions');
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -69,7 +67,6 @@ export const TradingTerminal = ({
     trades24h: initialTicker.count,
   };
 
-  // Derive OHLC for PairHeader: hovered candle takes priority, else live candle
   const latestOhlc: OHLCValues | null =
     hoveredOhlc ||
     (ohlcv ? { open: ohlcv[1], high: ohlcv[2], low: ohlcv[3], close: ohlcv[4] } : null);
@@ -117,16 +114,32 @@ export const TradingTerminal = ({
   const { textClass } = trendingClasses(currentTicker.priceChangePercent);
   const isPositive = currentTicker.priceChangePercent >= 0;
 
+  const chart = (
+    <BinanceCandlestickChart
+      symbol={symbol}
+      data={initialKlines}
+      liveOhlcv={ohlcv}
+      liveInterval={liveInterval}
+      setLiveInterval={setLiveInterval}
+      onOhlcChange={setHoveredOhlc}
+      fillHeight
+    />
+  );
+
+  const pairHeader = (
+    <PairHeader
+      tradingPair={currentTicker}
+      isLive={isConnected}
+      liveInterval={liveInterval}
+      onOpenPicker={() => setPickerOpen(true)}
+      latestOhlc={latestOhlc}
+    />
+  );
+
   return (
-    // Mobile: flex column
-    // Tablet/Desktop (md+): 3-col grid
-    //   col 1: sidebar (220px)  col 2: chart+form (1fr)  col 3: orderbook (220px)
-    //   row 1: sidebar | chart     | orderbook
-    //   row 2: sidebar | form      | orderbook
-    //   row 3: positions (all 3 cols)
-    <div className="flex h-[calc(100vh-56px)] flex-col gap-1 overflow-hidden bg-[color:var(--terminal-deep)] p-1 md:grid md:grid-cols-[220px_1fr_220px] md:grid-rows-[1fr_auto_210px] md:gap-1.5 md:p-1.5">
-      {/* ── Mobile-only: pair info bar ── */}
-      <div className="flex items-center justify-between border-b border-[color:var(--terminal-border)] bg-[color:var(--terminal-panel)] px-3 py-2 md:hidden">
+    <div className="overflow-x-hidden bg-[color:var(--terminal-deep)]">
+      {/* ── Mobile header + tabs ── */}
+      <div className="flex shrink-0 items-center justify-between border-b border-[color:var(--terminal-border)] bg-[color:var(--terminal-panel)] px-3 py-2 md:hidden">
         <button
           onClick={() => setPickerOpen(true)}
           className="flex items-center gap-1.5 rounded px-2 py-1 transition-colors hover:bg-[color:var(--terminal-border)]/30"
@@ -162,71 +175,95 @@ export const TradingTerminal = ({
           DEMO
         </span>
       </div>
-
-      {/* ── Mobile-only: tab bar ── */}
       <div className="flex shrink-0 border-b border-[color:var(--terminal-border)] bg-[color:var(--terminal-panel)] md:hidden">
-        <button
-          onClick={() => setActiveTab('trade')}
-          className={`flex-1 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'trade'
-              ? 'text-foreground border-b-2 border-green-500'
-              : 'hover:text-foreground text-gray-400'
-          }`}
-        >
-          Trade
-        </button>
-        <button
-          onClick={() => setActiveTab('chart')}
-          className={`flex-1 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'chart'
-              ? 'text-foreground border-b-2 border-green-500'
-              : 'hover:text-foreground text-gray-400'
-          }`}
-        >
-          Chart
-        </button>
+        {(['trade', 'chart'] as MobileTab[]).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex-1 py-2 text-sm font-medium capitalize transition-colors ${
+              activeTab === tab
+                ? 'text-foreground border-b-2 border-green-500'
+                : 'hover:text-foreground text-gray-400'
+            }`}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
       </div>
 
-      {/* ── Col 1: Assets Sidebar — spans rows 1+2 (desktop only) ── */}
-      <div className="hidden overflow-hidden rounded-sm bg-[color:var(--terminal-panel)] md:row-span-2 md:block">
-        <AssetsSidebar pairs={allPairs} selectedSymbol={symbol} onSelectPair={handleSelectPair} />
-      </div>
-
-      {/* ── Col 2 row 1: Chart ── */}
-      <div
-        className={`${
-          activeTab === 'chart' ? 'flex min-h-0 flex-1 flex-col' : 'hidden'
-        } overflow-hidden rounded-sm bg-[color:var(--terminal-panel)] md:col-start-2 md:row-start-1 md:flex md:min-h-0 md:flex-col`}
-      >
-        <PairHeader
-          tradingPair={currentTicker}
-          isLive={isConnected}
-          liveInterval={liveInterval}
-          onOpenPicker={() => setPickerOpen(true)}
-          latestOhlc={latestOhlc}
-        />
-        <div className="min-h-0 flex-1 overflow-hidden">
-          <BinanceCandlestickChart
-            symbol={symbol}
-            data={initialKlines}
-            liveOhlcv={ohlcv}
-            liveInterval={liveInterval}
-            setLiveInterval={setLiveInterval}
-            onOhlcChange={setHoveredOhlc}
-            fillHeight
+      {/* ── Mobile body ── */}
+      <div className="md:hidden">
+        {activeTab === 'chart' ? (
+          <div className="flex h-[420px] flex-col rounded-sm bg-[color:var(--terminal-panel)]">
+            {pairHeader}
+            {chart}
+          </div>
+        ) : (
+          <div className="flex gap-1">
+            <div className="custom-scrollbar w-[55%] overflow-y-auto rounded-sm bg-[color:var(--terminal-panel)]">
+              <TradingForm
+                symbol={symbol}
+                currentPrice={currentTicker.currentPrice}
+                onTrade={handleTrade}
+              />
+            </div>
+            <div className="flex-1 overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
+              <OrderBook
+                symbol={symbol}
+                orderBook={orderBook}
+                currentPrice={currentTicker.currentPrice}
+              />
+            </div>
+          </div>
+        )}
+        <div className="mt-1 h-[210px] overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
+          <PositionsTable
+            positions={positions}
+            currentPrices={currentPrices}
+            onClose={handleClosePosition}
           />
         </div>
       </div>
 
-      {/* ── Mobile Trade tab: form (55%) + orderbook (45%) side by side ── */}
-      {/* ── Desktop: contents dissolve into grid ── */}
+      {/* ── Desktop grid ──
+          Mirrors alphaxle: grid-cols-5 grid-rows-6, h-full on grid
+          Col1: sidebar row-span-4  | Col2-4: chart row-span-2 then form row-span-2 | Col5: orderbook row-span-4
+          Row 5-6: positions col-span-5
+          We use 3-col variant: sidebar(220) | chart(1fr) | orderbook(220)
+          grid-rows: repeat(4, 1fr) for chart+form area, then positions
+      ── */}
+      {/* ── Desktop grid ──
+          Reference (alphaxle): grid-template-rows: repeat(6, 15.25rem) — fixed 244px rows, natural scroll
+          Our 3-col variant: sidebar(220px) | chart+form(1fr) | orderbook(220px)
+          5 rows: rows 1-2=chart, rows 3-4=form, row 5=positions
+          sidebar/orderbook span rows 1-4 with internal overflow-y-auto
+      ── */}
       <div
-        className={`${
-          activeTab === 'trade' ? 'flex' : 'hidden'
-        } min-h-0 flex-1 gap-1 overflow-hidden md:contents`}
+        className="hidden w-full gap-2 p-2 md:grid md:grid-cols-[220px_minmax(0,1fr)_220px]"
+        style={{ gridTemplateRows: 'repeat(4, 244px) 210px' }}
       >
-        {/* Col 2 row 2: Trading Form */}
-        <div className="custom-scrollbar w-[55%] overflow-y-auto rounded-sm bg-[color:var(--terminal-panel)] md:col-start-2 md:row-start-2 md:w-auto md:overflow-hidden">
+        {/* Col 1: Sidebar — rows 1-4 (976px + 3 gaps) */}
+        <div className="row-span-4 flex flex-col overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
+          <AssetsSidebar pairs={allPairs} selectedSymbol={symbol} onSelectPair={handleSelectPair} />
+        </div>
+
+        {/* Col 2 rows 1-2: Chart (488px + 1 gap) */}
+        <div className="row-span-2 flex flex-col overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
+          {pairHeader}
+          {chart}
+        </div>
+
+        {/* Col 3: Order Book — rows 1-4 (976px + 3 gaps) */}
+        <div className="row-span-4 flex flex-col overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
+          <OrderBook
+            symbol={symbol}
+            orderBook={orderBook}
+            currentPrice={currentTicker.currentPrice}
+          />
+        </div>
+
+        {/* Col 2 rows 3-4: Form (488px + 1 gap) */}
+        <div className="row-span-2 overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
           <TradingForm
             symbol={symbol}
             currentPrice={currentTicker.currentPrice}
@@ -234,26 +271,16 @@ export const TradingTerminal = ({
           />
         </div>
 
-        {/* Col 3: Order Book — spans rows 1+2 */}
-        <div className="flex-1 overflow-hidden rounded-sm bg-[color:var(--terminal-panel)] md:col-start-3 md:row-span-2 md:row-start-1">
-          <OrderBook
-            symbol={symbol}
-            orderBook={orderBook}
-            currentPrice={currentTicker.currentPrice}
+        {/* Row 5: Positions — full width */}
+        <div className="col-span-3 overflow-hidden rounded-sm bg-[color:var(--terminal-panel)]">
+          <PositionsTable
+            positions={positions}
+            currentPrices={currentPrices}
+            onClose={handleClosePosition}
           />
         </div>
       </div>
 
-      {/* ── Row 3: Positions Table — full width, all 3 cols ── */}
-      <div className="h-[210px] shrink-0 overflow-hidden rounded-sm bg-[color:var(--terminal-panel)] md:col-span-3 md:col-start-1 md:row-start-3 md:h-auto">
-        <PositionsTable
-          positions={positions}
-          currentPrices={currentPrices}
-          onClose={handleClosePosition}
-        />
-      </div>
-
-      {/* ── Asset Picker Modal ── */}
       {pickerOpen && (
         <AssetPickerModal
           pairs={allPairs}

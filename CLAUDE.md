@@ -34,27 +34,35 @@ No configuration needed! Visit `http://localhost:3000`
 
 ```
 coinpulse/
-├── app/
-│   ├── pairs/              # Trading pairs routes
-│   │   ├── page.tsx       # All pairs list
-│   │   └── [symbol]/      # Individual pair (BTCUSDT)
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── components/
-│   ├── home/              # Home page components
-│   ├── ui/                # shadcn/ui components
-│   ├── BinanceCandlestickChart.tsx
-│   ├── BinanceLiveDataWrapper.tsx
-│   ├── PairHeader.tsx
-│   └── Header.tsx
-├── hooks/
-│   └── useBinanceWebSocket.ts  # WebSocket connection
-├── lib/
-│   ├── binance.actions.ts      # Binance API
-│   └── utils.ts                # Utilities
-├── scripts/
-│   └── test-binance.ts         # API tests
-└── type.d.ts                    # TypeScript types
+├── src/
+│   ├── app/
+│   │   ├── dashboard/page.tsx  # Dashboard route
+│   │   ├── pairs/              # Trading pairs routes
+│   │   │   ├── page.tsx       # All pairs list
+│   │   │   └── [symbol]/      # Individual pair (BTCUSDT)
+│   │   ├── globals.css
+│   │   ├── layout.tsx         # Root layout
+│   │   └── page.tsx           # Home page
+│   ├── components/
+│   │   ├── dashboard/         # Dashboard components (5 files)
+│   │   ├── home/              # Home page components (5 files)
+│   │   ├── ui/                # shadcn/ui components (7 files)
+│   │   └── *.tsx              # 15 root-level components
+│   ├── hooks/
+│   │   └── useBinanceWebSocket.ts  # WebSocket connection
+│   ├── lib/
+│   │   ├── binance.actions.ts      # Binance API
+│   │   ├── mockData.ts
+│   │   └── utils.ts                # Utilities
+│   ├── scripts/
+│   │   └── test-binance.ts         # API tests
+│   ├── types/
+│   │   └── index.d.ts              # TypeScript types
+│   └── constants.ts
+├── next.config.ts
+├── tsconfig.json
+├── components.json
+└── package.json
 ```
 
 ## Environment Variables
@@ -129,7 +137,7 @@ const config = periodToBinanceConfig('daily');
 - `BinanceSymbol` - Trading symbol information
 - `TradingPair` - UI display data
 
-All types in `type.d.ts`
+All types in `src/types/index.d.ts`
 
 ## Development Guidelines
 
@@ -156,14 +164,14 @@ All types in `type.d.ts`
 
 ### Add New Trading Pair Feature
 
-1. Update types in `type.d.ts`
-2. Add API function in `lib/binance.actions.ts`
+1. Update types in `src/types/index.d.ts`
+2. Add API function in `src/lib/binance.actions.ts`
 3. Create/update component
-4. Test with `npx tsx scripts/test-binance.ts`
+4. Test with `npx tsx src/scripts/test-binance.ts`
 
 ### Modify Chart Config
 
-Edit `constants.ts`:
+Edit `src/constants.ts`:
 
 ```typescript
 export const BINANCE_INTERVAL_CONFIG: Record<Period, {...}> = {
@@ -174,7 +182,7 @@ export const BINANCE_INTERVAL_CONFIG: Record<Period, {...}> = {
 
 ### Filter Trading Pairs
 
-Edit stablecoins list in `app/pairs/page.tsx`:
+Edit stablecoins list in `src/app/pairs/page.tsx`:
 
 ```typescript
 const stablecoins = ['USDC', 'BUSD', 'TUSD', 'USDP', 'DAI', 'FDUSD', 'USDD'];
@@ -184,7 +192,7 @@ const stablecoins = ['USDC', 'BUSD', 'TUSD', 'USDP', 'DAI', 'FDUSD', 'USDD'];
 
 ```bash
 # Test Binance API integration
-npx tsx scripts/test-binance.ts
+npx tsx src/scripts/test-binance.ts
 
 # Expected output:
 # ✅ Found 441 USDT trading pairs

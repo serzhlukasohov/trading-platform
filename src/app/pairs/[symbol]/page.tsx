@@ -41,7 +41,7 @@ const PairPage = async ({ params }: PairPageProps) => {
       .sort((a, b) => b.quoteVolume24h - a.quoteVolume24h); // Sort by volume
 
     return (
-      <main className="min-h-screen bg-[color:var(--terminal-deep)]">
+      <main className="bg-[color:var(--terminal-deep)]">
         <TradingTerminal
           symbol={symbol}
           initialTicker={ticker}
