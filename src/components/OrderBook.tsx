@@ -44,7 +44,7 @@ export const OrderBook = ({ symbol, orderBook, currentPrice }: OrderBookProps) =
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-[color:var(--terminal-panel)]">
+    <div className="flex h-full flex-col bg-[color:var(--terminal-panel)]">
       {/* Header */}
       <div className="flex-none border-b border-[color:var(--terminal-border)] px-4 py-3">
         <div className="flex items-center justify-between">
@@ -69,7 +69,7 @@ export const OrderBook = ({ symbol, orderBook, currentPrice }: OrderBookProps) =
         <div className="text-right">Sum</div>
       </div>
 
-      {/* Scrollable content — min-h-0 is critical to prevent flex overflow */}
+      {/* Scrollable content */}
       <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
         {/* Asks (sell) — reversed so highest is on top */}
         <div className="flex flex-col-reverse">

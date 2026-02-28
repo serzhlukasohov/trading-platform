@@ -51,8 +51,8 @@ const BinanceCandlestickChart = ({
   setLiveInterval,
   onOhlcChange,
 }: BinanceCandlestickChartProps) => {
+  const outerRef = useRef<HTMLDivElement | null>(null);
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
-  const dynamicHeight = height;
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
   const prevOhlcDataLength = useRef<number>(data?.length || 0);
@@ -81,8 +81,6 @@ const BinanceCandlestickChart = ({
     fetchOHLCData(newPeriod);
   };
 
-  const chartHeight = fillHeight ? dynamicHeight : height;
-
   // Initialize chart
   useEffect(() => {
     const container = chartContainerRef.current;
@@ -94,10 +92,16 @@ const BinanceCandlestickChart = ({
       getComputedStyle(document.documentElement).getPropertyValue('--terminal-panel').trim() ||
       CHART_COLORS[theme].background;
 
-    const baseConfig = getChartConfig(chartHeight, showTime, theme);
+    const initW = fillHeight
+      ? (outerRef.current?.clientWidth ?? container.clientWidth)
+      : container.clientWidth;
+    const initH = fillHeight ? (outerRef.current?.clientHeight ?? height) : height;
+
+    const baseConfig = getChartConfig(initH, showTime, theme);
     const chart = createChart(container, {
       ...baseConfig,
-      ...(fillHeight ? { autoSize: true } : { width: container.clientWidth }),
+      width: initW,
+      height: initH,
       layout: {
         ...baseConfig.layout,
         background: { type: ColorType.Solid, color: panelBg },
@@ -120,12 +124,16 @@ const BinanceCandlestickChart = ({
     chartRef.current = chart;
     candleSeriesRef.current = series;
 
-    if (!fillHeight) {
+    const watchEl = fillHeight ? outerRef.current : container;
+    if (watchEl) {
       const observer = new ResizeObserver((entries) => {
         if (!entries.length) return;
-        chart.applyOptions({ width: entries[0].contentRect.width });
+        const { width, height: h } = entries[0].contentRect;
+        if (width > 0 && h > 0) {
+          chart.applyOptions({ width, height: h });
+        }
       });
-      observer.observe(container);
+      observer.observe(watchEl);
       return () => {
         observer.disconnect();
         chart.remove();
@@ -139,7 +147,7 @@ const BinanceCandlestickChart = ({
       chartRef.current = null;
       candleSeriesRef.current = null;
     };
-  }, [chartHeight, period]);
+  }, [period]);
 
   // Update chart data when ohlcData or liveOhlcv changes
   useEffect(() => {
@@ -195,29 +203,26 @@ const BinanceCandlestickChart = ({
     });
   }, [theme]);
 
-  return (
-    <div
-      id="candlestick-chart"
-      style={
-        fillHeight
-          ? {
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100%',
-              padding: 0,
-              marginTop: 0,
-              borderRadius: 0,
-              background: 'transparent',
-            }
-          : undefined
-      }
-    >
-      {/* Period selection row — only shown in standalone (non-fillHeight) mode */}
-      {!fillHeight && (
-        <div className="chart-header">
-          <div className="flex flex-1 flex-wrap items-center gap-3">{children}</div>
-          <div className="button-group">
-            <span className="mx-2 text-sm font-medium text-purple-100/50">Period:</span>
+  if (fillHeight) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div ref={outerRef} className="min-h-0 flex-1">
+          <div ref={chartContainerRef} />
+        </div>
+        <div className="chart-interval-bar shrink-0">
+          <div className="button-group flex-1">
+            {BINANCE_LIVE_INTERVALS.map(({ value, label }) => (
+              <button
+                key={value}
+                className={liveInterval === value ? 'config-button-active' : 'config-button'}
+                onClick={() => setLiveInterval(value)}
+                disabled={isPending}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="button-group border-l border-[color:var(--terminal-border)] pl-2">
             {PERIOD_BUTTONS.map(({ value, label }) => (
               <button
                 key={value}
@@ -230,15 +235,14 @@ const BinanceCandlestickChart = ({
             ))}
           </div>
         </div>
-      )}
+      </div>
+    );
+  }
 
-      <div
-        ref={chartContainerRef}
-        className="chart"
-        style={fillHeight ? { flex: 1, minHeight: 0, height: '100%' } : { height: chartHeight }}
-      />
+  return (
+    <div id="candlestick-chart">
+      <div ref={chartContainerRef} className="chart" style={{ height }} />
 
-      {/* Interval + period bar below chart */}
       <div className="chart-interval-bar">
         <div className="button-group flex-1">
           {BINANCE_LIVE_INTERVALS.map(({ value, label }) => (
@@ -252,22 +256,18 @@ const BinanceCandlestickChart = ({
             </button>
           ))}
         </div>
-
-        {/* Period buttons — shown inline in fill-height (terminal) mode */}
-        {fillHeight && (
-          <div className="button-group border-l border-[color:var(--terminal-border)] pl-2">
-            {PERIOD_BUTTONS.map(({ value, label }) => (
-              <button
-                key={value}
-                className={period === value ? 'config-button-active' : 'config-button'}
-                onClick={() => handlePeriodChange(value)}
-                disabled={isPending}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="button-group border-l border-[color:var(--terminal-border)] pl-2">
+          {PERIOD_BUTTONS.map(({ value, label }) => (
+            <button
+              key={value}
+              className={period === value ? 'config-button-active' : 'config-button'}
+              onClick={() => handlePeriodChange(value)}
+              disabled={isPending}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

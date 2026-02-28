@@ -203,8 +203,12 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    overflow-x: hidden;
+  }
   body {
     @apply bg-dark-700 text-foreground;
+    overflow-x: hidden;
   }
 }
 
@@ -253,6 +257,23 @@
     }
   }
 
+  /* Shared button/interval styles — used both in #candlestick-chart and fillHeight terminal mode */
+  .button-group {
+    @apply flex items-center gap-1 xl:gap-2;
+  }
+
+  .config-button {
+    @apply hover:bg-dark-400 hover:text-foreground cursor-pointer rounded-sm border-0 px-2.5 py-2 text-xs text-purple-100 xl:text-sm;
+  }
+
+  .config-button-active {
+    @apply cursor-pointer rounded-sm border-0 bg-green-500 px-2.5 py-1.5 text-xs text-gray-900;
+  }
+
+  .chart-interval-bar {
+    @apply flex flex-wrap items-center gap-y-1 border-t border-[color:var(--terminal-border)] px-3 py-2;
+  }
+
   #candlestick-chart {
     @apply bg-dark-500 mt-5 rounded-lg p-3;
 
@@ -260,24 +281,12 @@
       @apply mb-4 flex flex-col gap-3 text-[20px] font-semibold text-[#e6eef8] xl:flex-row xl:items-center;
     }
 
-    .button-group {
-      @apply flex items-center gap-1 xl:gap-2;
-    }
-
-    .config-button {
-      @apply hover:bg-dark-400 hover:text-foreground cursor-pointer rounded-sm border-0 px-2.5 py-2 text-xs text-purple-100 xl:text-sm;
-    }
-
-    .config-button-active {
-      @apply cursor-pointer rounded-sm border-0 bg-green-500 px-2.5 py-1.5 text-sm text-gray-900;
-    }
-
     .chart {
       @apply min-h-50 w-full;
     }
 
     .chart-interval-bar {
-      @apply mt-2 flex items-center border-t border-[color:var(--terminal-border)] pt-2;
+      @apply mt-2 px-0 pt-2;
     }
   }
 
@@ -289,10 +298,6 @@
 
     .chart {
       min-height: 0 !important;
-    }
-
-    .chart-interval-bar {
-      @apply px-3 pb-2;
     }
   }
 
